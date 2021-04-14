@@ -1,6 +1,6 @@
 //! Accessor for an array
 
-use crate::{error::Error, mapper::Mapper};
+use crate::{error::Error, mapper::Mapper, Single};
 use core::{fmt, hash::Hash, marker::PhantomData, mem, ptr};
 
 /// An accessor to read, modify, and write an array of some type on memory.
@@ -145,6 +145,15 @@ where
         let mut v = self.read_at(i);
         f(&mut v);
         self.write_at(i, v);
+    }
+
+    /// Retrieve the `i`th element as [`Single`]
+    ///
+    /// # Panics
+    ///
+    /// This method will panic if `i >= self.len()`
+    pub fn as_single<M2: Mapper>(&self, i: usize, mapper: M2) -> Single<T, M2> {
+        unsafe { Single::new(self.addr(i), mapper) }
     }
 
     /// Returns the length of the array.
