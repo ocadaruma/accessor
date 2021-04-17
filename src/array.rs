@@ -147,15 +147,6 @@ where
         self.write_at(i, v);
     }
 
-    /// Retrieve the `i`th element as [`Single`]
-    ///
-    /// # Panics
-    ///
-    /// This method will panic if `i >= self.len()`
-    pub fn as_single<M2: Mapper>(&self, i: usize, mapper: M2) -> Single<T, M2> {
-        unsafe { Single::new(self.addr(i), mapper) }
-    }
-
     /// Returns the length of the array.
     pub fn len(&self) -> usize {
         self.len
@@ -167,6 +158,22 @@ where
 
     fn bytes(&self) -> usize {
         mem::size_of::<T>() * self.len
+    }
+}
+impl<T, M> Array<T, M>
+where
+    T: Copy,
+    M: Mapper + Clone
+{
+    /// Retrieve the `i`th element as [`Single`]
+    ///
+    /// # Panics
+    ///
+    /// This method will panic if `i >= self.len()`
+    pub fn single_at(&self, i: usize) -> Single<T, M> {
+        assert!(i < self.len());
+
+        unsafe { Single::new(self.addr(i), self.mapper.clone()) }
     }
 }
 impl<T, M> fmt::Debug for Array<T, M>
